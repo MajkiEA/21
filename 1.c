@@ -1,49 +1,21 @@
-Следующие задание командное. 
-Quest: Level 1. Hall
-Получен Quest. Разработать программу src/pong.c, представляющую из себя игру для двух игроков, схожую с игрой Pong. Для отображения графики использовать только символьную (ASCII) графику (с выводом в терминал). Вам с командой необходимо реализовать пошаговый вариант исключительно в рамках уже изученного материала и стандартной библиотеки.
-ВАЖНО! Запрещено выполнять системные вызовы, используя функцию system() и другие аналогичные ей функции, которые могут обращаться напрямую к ядру системы. Данный запрет распространяется и на последующую задачу.
-
-Управление:
-
-A/Z и K/M для перемещения ракеток.
-Space Bar для пропуска действия на очередном шаге игры в пошаговом режиме.
-После запуска программа переходит к ожиданию корректного ввода, т. е. один из игроков должен передвинуть свою ракетку или пропустить ход. После чего происходит отрисовка, и программа снова переходит к ожиданию ввода. И так игра продолжается, пока не будет завершена.
-Графика:
-
-Поле — прямоугольник 80 на 25 символов.
-Размер ракетки — 3 символа.
-Размер мяча — 1 символ.
-UI/UX:
-
-После достижения одним из игроков счета в 21 очко игра выводит поздравление победителя и завершается.
-
-Такой гитлаб D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1
-Selected
-master 
-default
- 
-protected
-Branches 
-2
-develop-m
-develop
-
-Как мне войти в файлы и создать свою ветку, например develop-virginwh
-
-Вот что человек уже сделал другой:
-.clang-format
-BasedOnStyle: Google
-IndentWidth: 4
-ColumnLimit: 110
-.gitkeep
-0 B
-Empty file
-
-pong.c
 #include <stdio.h>
 int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XCoordBall, int YCoordBall);
 void PrintLeftRocket(int width);
 void PrintRightRocket(int width);
+void  PrintWeb(int width);
+void PrintLeftBorderAndWeb(int width);
+void PrintRightBorder(int width);
+void LeftTopAngle() ;
+void RightTopAngle();
+void LeftBottomAngle() ;
+void RightBottomAngle();
+void RightBottomAngle();
+void HorizontalBorder(int width);
+void PrintRightBorderAfterRocket();
+void PrintBottomBorder();
+void PrintTopBorder();
+
+
 
 int main() {
     int LeftY = 12, RightY = 12;
@@ -119,58 +91,87 @@ int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XCoo
     if (YRightRocket > MaxYRocket) {
         YRightRocket = MaxYRocket;
     }
-    //рисуем угол
-    LeftTopAngle()
-
-    HorizontalBorder(width);
-  
-    //рисуем угол
-    RightTopAngle();  
-
+    
+    PrintTopBorder();
     // рисуем вертикальную границу
     for (int indexVerticalLine = 0; indexVerticalLine < height; ++indexVerticalLine) {
         if (indexVerticalLine >= YLeftRocket && indexVerticalLine < YLeftRocket + 3) {
             // рисуем левую рокетку
-             PrintLeftRocket(width);
-            // рисуем сетку
-            printf("%*s%s", width / 2 - 4, "░", "");
-            // рисуем правую границу
+            PrintLeftRocket(width);
+            // рисуем сетку   
+            PrintWeb(width); 
+            
         } else {
-            // рисуем сетку
-            printf("\x1b[35m|\x1b[0m%*s%s", width / 2, "░", "");
+            // рисуем левую границу и сетку
+            PrintLeftBorderAndWeb( width);
         }
 
         if (indexVerticalLine >= YRightRocket && indexVerticalLine < YRightRocket + 3) {
             // рисуем правую рокетку
-            PrintRightRocket(width);
-            // рисуем правую границу и переходим на седующую строку
-            printf("%*s\x1b[35m|\x1b[0m\n", 2, "");
-
+            PrintRightRocket(width);         
+            //PrintRightBorder(width);
+            PrintRightBorderAfterRocket();
         } else {
             // рисуем правую границу и переходим на следующую строку
-            printf("%*s\x1b[35m|\x1b[0m\n", width / 2, "");
+             PrintRightBorder(width);            
         }
     }
 
-    //рисуем угол
-    printf("\x1b[35m└");
-
-    for (int k = 0; k < width - 2; ++k) {  // рисуем горизонтальную линию длиной равно ширине поля -2, потому
-                                           // что левый и правый угол рисуются отдельно
-        printf("─");
-    }
-   //рисуем угол
-    printf("┘\x1b[0m\n");
+    PrintBottomBorder();
+    
     return 0;
+}
+
+
+void PrintTopBorder() {
+//рисуем угол
+    LeftTopAngle();
+    //Горизонтальная линия
+    HorizontalBorder(width);  
+    //рисуем угол
+    RightTopAngle();  
+    return;
+}
+void PrintBottomBorder() {
+//рисуем угол
+    LeftTopAngle();
+    //Горизонтальная линия
+    HorizontalBorder(width);  
+    //рисуем угол
+    RightTopAngle();  
+    return;
+}
+
+void PrintWeb(int width) {
+    printf("%*s%s", width / 2 - 4, "░", "");
+    return;
+}       
+            
+
+void PrintLeftBorderAndWeb(int width) {
+    printf("\x1b[35m|\x1b[0m%*s%s", width / 2, "░", "");
+    return;
+}
+
+void PrintRightBorder(int width){ 
+    printf("%*s\x1b[35m|\x1b[0m\n", width / 2, "");
+    return;
 }
 
 void PrintLeftRocket(int width) {
     printf("\x1b[35m|\x1b[0m\x1b[36m%*s%s\x1b[0m", width - 74, "▓", "");
+   
+    //printf("%*s%s", width - 74, "▓", "");
+   
     return;
 }
 void PrintRightRocket(int width) {
     printf("\x1b[32m%*s%s\x1b[0m", width / 2, "▓", "");
     return;
+}
+
+void PrintRightBorderAfterRocket() {
+      printf("%*s\x1b[35m|\x1b[0m\n", 2, "");
 }
 
 void LeftTopAngle() {
@@ -180,14 +181,23 @@ void LeftTopAngle() {
 
 void RightTopAngle(){
     printf("┐\x1b[0m\n");
+    return;
 }
 
-void HorizontalBorder(width) {
+void LeftBottomAngle() {
+     printf("\x1b[35m└");
+    return;
+}
+
+void RightBottomAngle(){
+    printf("┘\x1b[0m\n");
+    return;
+}
+void HorizontalBorder(int width) {
     for (int i = 0; i < width - 2; ++i) {  
         // рисуем горизонтальную линию длиной равно ширине поля -2, потому
         // что левый и правый угол рисуются отдельно
         printf("─");
     }
+    return;
 }
-
-Моя задача сделать мячик, который будет отталкиваться. Сделай это, обьясни весь код, и скажи как запустить.
