@@ -1,221 +1,24 @@
-#include <stdio.h>
+q
+virginwh@kr-g5:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git add src/pong.c
+virginwh@kr-g5:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git commit -m "pongich"
+[develop-virginwh 8542a8e] pongich
+ Committer: Virgin Whatarmy <virginwh@kr-g5.stw.21-school.ru>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
 
-#define WIDTH 80
-#define HEIGHT 25
-#define PADDLE_SIZE 3
-#define LEFT_X 2
-#define RIGHT_X (WIDTH - 3)
-#define WIN_SCORE 21
+    git config --global --edit
 
-typedef struct {
-    int x, y;
-    int vx, vy;
-} Ball;
+After doing this, you may fix the identity used for this commit with:
 
-typedef struct {
-    int y;
-} Paddle;
+    git commit --amend --reset-author
 
-static void clamp_paddle(Paddle *p) {
-    if (p->y < 1) p->y = 1;
-    if (p->y > HEIGHT - PADDLE_SIZE - 1) p->y = HEIGHT - PADDLE_SIZE - 1;
-}
-
-static void reset_ball(Ball *b) {
-    b->x = WIDTH / 2;
-    b->y = HEIGHT / 2;
-    b->vx = 1;
-    b->vy = 1;
-}
-
-static void clear_screen(void) {
-    printf("\033[2J\033[H");
-}
-
-static void render(const Paddle *l, const Paddle *r, const Ball *b, int sL, int sR) {
-    clear_screen();
-    
-    // === ВЕРХНЯЯ РАМКА ===
-    printf("\x1b[35m┌");
-    for (int x = 1; x < WIDTH - 1; ++x) printf("─");
-    printf("┐\x1b[0m\n");
-
-    // === ПЕРВАЯ СТРОКА СО СЧЁТОМ В ЦЕНТРЕ ===
-    printf("\x1b[35m│\x1b[0m");
-    
-    char score_text[50];
-    sprintf(score_text, "%d : %d", sL, sR);
-    
-    int score_len = 0;
-    for (int i = 0; score_text[i] != '\0'; ++i) score_len++;
-    
-    int total_space = WIDTH - 2;
-    int left_spaces = (total_space - score_len) / 2;
-    
-    for (int i = 0; i < left_spaces; ++i) printf(" ");
-    
-    printf("\x1b[34m%d\x1b[0m : \x1b[31m%d\x1b[0m", sL, sR);
-    
-    int right_spaces = total_space - left_spaces - score_len;
-    for (int i = 0; i < right_spaces; ++i) printf(" ");
-    
-    printf("\x1b[35m│\x1b[0m\n");
-
-    // === ПОЛЕ (24 строки) ===
-    for (int y = 1; y < HEIGHT; ++y) {
-        printf("\x1b[35m│\x1b[0m");
-        
-        for (int x = 1; x < WIDTH - 1; ++x) {
-            if (x == WIDTH / 2) {
-                printf("░");
-                continue;
-            }
-            
-            if (x == LEFT_X && y >= l->y && y < l->y + PADDLE_SIZE) {
-                printf("\x1b[34m▓\x1b[0m");
-                continue;
-            }
-            
-            if (x == RIGHT_X && y >= r->y && y < r->y + PADDLE_SIZE) {
-                printf("\x1b[31m▓\x1b[0m");
-                continue;
-            }
-            
-            if (x == b->x && y == b->y) {
-                printf("\x1b[33m●\x1b[0m");
-                continue;
-            }
-            
-            printf(" ");
-        }
-        
-        printf("\x1b[35m│\x1b[0m\n");
-    }
-
-    // === НИЖНЯЯ РАМКА ===
-    printf("\x1b[35m└");
-    for (int x = 1; x < WIDTH - 1; ++x) printf("─");
-    printf("┘\x1b[0m\n");
-    
-    printf("Управление: \x1b[34mA/Z\x1b[0m (синий) | \x1b[31mK/M\x1b[0m (красный) | Пробел (пропуск) | Q (выход)\n");
-}
-
-static void step_ball(Ball *ball, const Paddle *l, const Paddle *r, int *scoreL, int *scoreR) {
-    int nextX = ball->x + ball->vx;
-    int nextY = ball->y + ball->vy;
-
-    if (nextY <= 1 || nextY >= HEIGHT - 1) {
-        ball->vy = -ball->vy;
-        nextY = ball->y + ball->vy;
-    }
-
-    if (nextX == LEFT_X && nextY >= l->y && nextY < l->y + PADDLE_SIZE) {
-        ball->vx = -ball->vx;
-        nextX = ball->x + ball->vx;
-    }
-    
-    if (nextX == RIGHT_X && nextY >= r->y && nextY < r->y + PADDLE_SIZE) {
-        ball->vx = -ball->vx;
-        nextX = ball->x + ball->vx;
-    }
-
-    if (nextX <= 0) {
-        (*scoreR)++;
-        reset_ball(ball);
-        return;
-    }
-    
-    if (nextX >= WIDTH - 1) {
-        (*scoreL)++;
-        reset_ball(ball);
-        return;
-    }
-
-    ball->x = nextX;
-    ball->y = nextY;
-}
-
-int main(void) {
-    Paddle left = {.y = HEIGHT / 2 - PADDLE_SIZE / 2};
-    Paddle right = {.y = HEIGHT / 2 - PADDLE_SIZE / 2};
-    Ball ball;
-    int scoreL = 0, scoreR = 0;
-    reset_ball(&ball);
-
-    render(&left, &right, &ball, scoreL, scoreR);
-
-    while (1) {
-        // === ЧИТАЕМ ТОЛЬКО ПЕРВЫЙ СИМВОЛ ДО ENTER ===
-        int ch = getchar();
-        
-        // Если EOF — выходим
-        if (ch == EOF) break;
-        
-        // Если просто Enter — игнорируем
-        if (ch == '\n') continue;
-        
-        // Если q — выходим
-        if (ch == 'q' || ch == 'Q') break;
-
-        // Запоминаем первый введённый символ
-        int first_char = ch;
-        
-        // === ПРОПУСКАЕМ ВСЁ ДО ENTER ===
-        if (ch != '\n') {
-            while ((ch = getchar()) != '\n' && ch != EOF) {
-                // Читаем и выбрасываем все символы до Enter
-            }
-        }
-
-        // === ОБРАБАТЫВАЕМ ТОЛЬКО ПЕРВЫЙ СИМВОЛ ===
-        int move_done = 0;
-        
-        switch (first_char) {
-            case 'a':
-            case 'A':
-                left.y--;
-                move_done = 1;
-                break;
-            case 'z':
-            case 'Z': 
-                left.y++;
-                move_done = 1;
-                break;
-            case 'k':
-            case 'K':
-                right.y--;
-                move_done = 1;
-                break;
-            case 'm':
-            case 'M': 
-                right.y++;
-                move_done = 1;
-                break;
-            case ' ': 
-                move_done = 1;
-                break;
-            default:
-                // Некорректный ввод — не делаем ход
-                continue;
-        }
-        
-        // Если сделали корректное действие — обновляем игру
-        if (move_done) {
-            clamp_paddle(&left);
-            clamp_paddle(&right);
-            step_ball(&ball, &left, &right, &scoreL, &scoreR);
-            render(&left, &right, &ball, scoreL, scoreR);
-
-            if (scoreL >= WIN_SCORE) {
-                printf("\n\x1b[34m\x1b[1m🎉 СИНИЙ ИГРОК ПОБЕДИЛ!  🎉\x1b[0m\n");
-                break;
-            }
-            if (scoreR >= WIN_SCORE) {
-                printf("\n\x1b[31m\x1b[1m🎉 КРАСНЫЙ ИГРОК ПОБЕДИЛ! 🎉\x1b[0m\n");
-                break;
-            }
-        }
-    }
-    
-    return 0;
-}
+ 1 file changed, 196 insertions(+), 178 deletions(-)
+virginwh@kr-g5:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git push origin develop virginwh
+error: src refspec develop does not match any
+error: src refspec virginwh does not match any
+error: failed to push some refs to 'ssh://git-ssh.21-school.ru:2222/students_repo/shinoher/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1.git'
+virginwh@kr-g5:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git push origin develop virginwh
+error: src refspec develop does not match any
