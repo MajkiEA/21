@@ -1,163 +1,232 @@
 #include <stdio.h>
 
-#define WIDTH 80
-#define HEIGHT 25
-#define PADDLE_SIZE 3
-#define LEFT_X 2
-#define RIGHT_X 77
-#define WIN_SCORE 21
-
-void draw_line(int len) {
-    int i;
-    for (i = 0; i < len; i = i + 1) {
-        printf("-");
-    }
-}
-
-void draw_spaces(int count) {
-    int i;
-    for (i = 0; i < count; i = i + 1) {
-        printf(" ");
-    }
-}
-
-void draw_field(int left_y, int right_y, int ball_x, int ball_y, int score_l, int score_r) {
-    int x, y;
-    
-    draw_line(WIDTH);
-    printf("\n");
-    
-    printf("Score: %d - %d\n", score_l, score_r);
-    
-    for (y = 0; y < HEIGHT; y = y + 1) {
-        for (x = 0; x < WIDTH; x = x + 1) {
-            if (x == 0 || x == WIDTH - 1) {
-                printf("|");
-            } else if (x == WIDTH / 2) {
-                printf("|");
-            } else if (x == LEFT_X && y >= left_y && y < left_y + PADDLE_SIZE) {
-                printf("]");
-            } else if (x == RIGHT_X && y >= right_y && y < right_y + PADDLE_SIZE) {
-                printf("[");
-            } else if (x == ball_x && y == ball_y) {
-                printf("o");
-            } else {
-                printf(" ");
-            }
-        }
-        printf("\n");
-    }
-    
-    draw_line(WIDTH);
-    printf("\n");
-    printf("Controls:  A/Z (left), K/M (right), Space (skip), Q (quit)\n");
-}
-
-void clamp(int *value, int min_val, int max_val) {
-    if (*value < min_val) {
-        *value = min_val;
-    }
-    if (*value > max_val) {
-        *value = max_val;
-    }
-}
+int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XBall, int YBall, int ScoreL, int ScoreR);
+void PrintLeftRocket(void);
+void PrintRightRocket(void);
+void PrintWeb(void);
+void LeftTopAngle(void);
+void RightTopAngle(void);
+void LeftBottomAngle(void);
+void RightBottomAngle(void);
+void HorizontalBorder(int width);
+void PrintBottomBorder(int width);
+void PrintTopBorder(int width);
+void PrintBall(void);
+void PrintVerticalBorder(void);
+void PrintScore(int ScoreL, int ScoreR);
+void PrintControls(void);
 
 int main(void) {
-    int left_y, right_y, ball_x, ball_y, ball_vx, ball_vy;
-    int score_l, score_r;
-    int ch, done, next_x, next_y;
-    
-    left_y = HEIGHT / 2 - PADDLE_SIZE / 2;
-    right_y = HEIGHT / 2 - PADDLE_SIZE / 2;
-    ball_x = WIDTH / 2;
-    ball_y = HEIGHT / 2;
-    ball_vx = 1;
-    ball_vy = 1;
-    score_l = 0;
-    score_r = 0;
-    done = 0;
-    
-    draw_field(left_y, right_y, ball_x, ball_y, score_l, score_r);
-    
-    while (done == 0) {
+    int LeftY = 12, RightY = 12;
+    int XBall = 40, YBall = 13;
+    int VxBall = 1, VyBall = 1;
+    int ScoreL = 0, ScoreR = 0;
+    int nextX, nextY;
+    int ch;
+
+    printPole(80, 25, LeftY, RightY, XBall, YBall, ScoreL, ScoreR);
+
+    while (1) {
         ch = getchar();
-        
-        if (ch == 10) {
+
+        if (ch == 'q' || ch == 'Q') {
+            printf("Игра закончена\n");
+            return 0;
+        }
+
+        if (ch == '\n') {
             continue;
         }
-        
-        if (ch == 113 || ch == 81) {
-            break;
-        }
-        
-        if (ch == 97 || ch == 65) {
-            left_y = left_y - 1;
-        } else if (ch == 122 || ch == 90) {
-            left_y = left_y + 1;
-        } else if (ch == 107 || ch == 75) {
-            right_y = right_y - 1;
-        } else if (ch == 109 || ch == 77) {
-            right_y = right_y + 1;
-        } else if (ch == 32) {
-            /* skip */
+
+        if (ch == 'a' || ch == 'A') {
+            LeftY = LeftY - 1;
+        } else if (ch == 'z' || ch == 'Z') {
+            LeftY = LeftY + 1;
+        } else if (ch == 'k' || ch == 'K') {
+            RightY = RightY - 1;
+        } else if (ch == 'm' || ch == 'M') {
+            RightY = RightY + 1;
+        } else if (ch == ' ') {
+            /* пропуск хода */
         } else {
             continue;
         }
-        
-        while (getchar() != 10) {
-            /* skip rest of line */
+
+        /* Читаем только первый символ */
+        while (getchar() != '\n') {
         }
-        
-        clamp(&left_y, 0, HEIGHT - PADDLE_SIZE);
-        clamp(&right_y, 0, HEIGHT - PADDLE_SIZE);
-        
-        next_x = ball_x + ball_vx;
-        next_y = ball_y + ball_vy;
-        
-        if (next_y <= 0 || next_y >= HEIGHT - 1) {
-            ball_vy = -ball_vy;
-            next_y = ball_y + ball_vy;
+
+        /* Ограничиваем ракетки */
+        if (LeftY < 1) LeftY = 1;
+        if (LeftY > 22) LeftY = 22;
+        if (RightY < 1) RightY = 1;
+        if (RightY > 22) RightY = 22;
+
+        /* Расчёт следующей позиции мяча */
+        nextX = XBall + VxBall;
+        nextY = YBall + VyBall;
+
+        /* Отскок от потолка и пола */
+        if (nextY <= 1 || nextY >= 24) {
+            VyBall = -VyBall;
+            nextY = YBall + VyBall;
         }
-        
-        if (next_x == LEFT_X && next_y >= left_y && next_y < left_y + PADDLE_SIZE) {
-            ball_vx = -ball_vx;
-            next_x = ball_x + ball_vx;
+
+        /* Отскок от левой ракетки */
+        if (nextX == 2 && nextY >= LeftY && nextY < LeftY + 3) {
+            VxBall = -VxBall;
+            nextX = XBall + VxBall;
         }
-        
-        if (next_x == RIGHT_X && next_y >= right_y && next_y < right_y + PADDLE_SIZE) {
-            ball_vx = -ball_vx;
-            next_x = ball_x + ball_vx;
+
+        /* Отскок от правой ракетки */
+        if (nextX == 77 && nextY >= RightY && nextY < RightY + 3) {
+            VxBall = -VxBall;
+            nextX = XBall + VxBall;
         }
-        
-        if (next_x <= 0) {
-            score_r = score_r + 1;
-            ball_x = WIDTH / 2;
-            ball_y = HEIGHT / 2;
-            ball_vx = 1;
-            ball_vy = 1;
-        } else if (next_x >= WIDTH - 1) {
-            score_l = score_l + 1;
-            ball_x = WIDTH / 2;
-            ball_y = HEIGHT / 2;
-            ball_vx = 1;
-            ball_vy = 1;
+
+        /* Голы */
+        if (nextX >= 79) {
+            ScoreL = ScoreL + 1;
+            XBall = 40;
+            YBall = 13;
+            VxBall = 1;
+            VyBall = 1;
+        } else if (nextX <= 0) {
+            ScoreR = ScoreR + 1;
+            XBall = 40;
+            YBall = 13;
+            VxBall = 1;
+            VyBall = 1;
         } else {
-            ball_x = next_x;
-            ball_y = next_y;
+            XBall = nextX;
+            YBall = nextY;
         }
-        
-        draw_field(left_y, right_y, ball_x, ball_y, score_l, score_r);
-        
-        if (score_l >= WIN_SCORE) {
-            printf("\nLeft player wins!\n");
-            done = 1;
+
+        printf("\033[2J\033[H");
+        printPole(80, 25, LeftY, RightY, XBall, YBall, ScoreL, ScoreR);
+
+        if (ScoreL >= 21) {
+            printf("\nИгрок 1 победил!\n");
+            return 0;
         }
-        
-        if (score_r >= WIN_SCORE) {
-            printf("\nRight player wins!\n");
-            done = 1;
+        if (ScoreR >= 21) {
+            printf("\nИгрок 2 победил!\n");
+            return 0;
         }
     }
-    
+
     return 0;
+}
+
+void PrintScore(int ScoreL, int ScoreR) {
+    printf("\n");
+    printf("                                      Счёт\n");
+    printf("                                    %d  :  %d\n", ScoreL, ScoreR);
+    printf("\n");
+}
+
+void PrintControls(void) {
+    printf("\n");
+    printf("  Игрок 1: A/Z (вверх/вниз)   |   Игрок 2: K/M (вверх/вниз)   |   Пробел:  пропуск   |   Q: выход\n");
+}
+
+int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XBall, int YBall, int ScoreL, int ScoreR) {
+    int y, x;
+    int MaxYRocket = 22;
+    int MinYRocket = 1;
+
+    if (YLeftRocket > MaxYRocket) YLeftRocket = MaxYRocket;
+    if (YRightRocket > MaxYRocket) YRightRocket = MaxYRocket;
+    if (YLeftRocket < MinYRocket) YLeftRocket = MinYRocket;
+    if (YRightRocket < MinYRocket) YRightRocket = MinYRocket;
+
+    PrintScore(ScoreL, ScoreR);
+    PrintTopBorder(width);
+
+    for (y = 1; y < height; y = y + 1) {
+        PrintVerticalBorder();
+
+        for (x = 1; x < width - 1; x = x + 1) {
+            if (x == width / 2) {
+                PrintWeb();
+                continue;
+            }
+            if (x == 2 && y >= YLeftRocket && y < YLeftRocket + 3) {
+                PrintLeftRocket();
+                continue;
+            }
+            if (x == width - 3 && y >= YRightRocket && y < YRightRocket + 3) {
+                PrintRightRocket();
+                continue;
+            }
+            if (x == XBall && y == YBall) {
+                PrintBall();
+                continue;
+            }
+            printf(" ");
+        }
+
+        PrintVerticalBorder();
+        printf("\n");
+    }
+
+    PrintBottomBorder(width);
+    PrintControls();
+
+    return 0;
+}
+
+void PrintLeftRocket(void) {
+    printf("\x1b[34m▓\x1b[0m");
+}
+
+void PrintRightRocket(void) {
+    printf("\x1b[31m▓\x1b[0m");
+}
+
+void PrintBall(void) {
+    printf("\x1b[33m●\x1b[0m");
+}
+
+void PrintTopBorder(int width) {
+    LeftTopAngle();
+    HorizontalBorder(width);
+    RightTopAngle();
+}
+
+void PrintBottomBorder(int width) {
+    LeftBottomAngle();
+    HorizontalBorder(width);
+    RightBottomAngle();
+}
+
+void PrintWeb(void) {
+    printf("░");
+}
+
+void PrintVerticalBorder(void) {
+    printf("\x1b[35m│\x1b[0m");
+}
+
+void LeftTopAngle(void) {
+    printf("\x1b[35m┌");
+}
+
+void RightTopAngle(void) {
+    printf("┐\x1b[0m\n");
+}
+
+void LeftBottomAngle(void) {
+    printf("\x1b[35m└");
+}
+
+void RightBottomAngle(void) {
+    printf("┘\x1b[0m\n");
+}
+
+void HorizontalBorder(int width) {
+    int i;
+    for (i = 0; i < width - 1; i = i + 1) {
+        printf("─");
+    }
 }
