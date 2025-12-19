@@ -29,26 +29,27 @@ static void reset_ball(Ball *b) {
 }
 
 static void clear_screen(void) {
-    printf("\033[2J\033[H");  // Очистка экрана и курсор в начало
+    printf("\033[2J\033[H");
 }
 
 static void render(const Paddle *l, const Paddle *r, const Ball *b, int sL, int sR) {
     clear_screen();
     
     // Верхняя рамка
-    printf("\x1b[35m┌");  // фиолетовый угол
+    printf("\x1b[35m┌");
     for (int x = 1; x < WIDTH - 1; ++x) printf("─");
     printf("┐\x1b[0m\n");
 
     // Поле
     for (int y = 0; y < HEIGHT; ++y) {
-        printf("\x1b[35m│\x1b[0m");  // левая граница
+        printf("\x1b[35m│\x1b[0m");
         
         for (int x = 1; x < WIDTH - 1; ++x) {
-            char c = ' ';
-            
             // Сетка по центру
-            if (x == WIDTH / 2) c = '░';
+            if (x == WIDTH / 2) {
+                printf("░");
+                continue;
+            }
             
             // Левая ракетка (синяя)
             if (x == LEFT_X && y >= l->y && y < l->y + PADDLE_SIZE) {
@@ -68,10 +69,10 @@ static void render(const Paddle *l, const Paddle *r, const Ball *b, int sL, int 
                 continue;
             }
             
-            putchar(c);
+            printf(" ");
         }
         
-        printf("\x1b[35m│\x1b[0m\n");  // правая граница
+        printf("\x1b[35m│\x1b[0m\n");
     }
 
     // Нижняя рамка
@@ -80,9 +81,8 @@ static void render(const Paddle *l, const Paddle *r, const Ball *b, int sL, int 
     printf("┘\x1b[0m\n");
     
     // Счёт
-    printf("\x1b[1m");  // жирный текст
     printf("Счёт: \x1b[36mЛевый %d\x1b[0m :  \x1b[32m%d Правый\x1b[0m\n", sL, sR);
-    printf("Управление: \x1b[36mA/Z\x1b[0m (левый), \x1b[32mK/M\x1b[0m (правый), Пробел (пропуск), Q (выход)\n");
+    printf("Управление: \x1b[36mA/Z\x1b[0m (левый вверх/вниз) | \x1b[32mK/M\x1b[0m (правый вверх/вниз) | Пробел (пропуск) | q (выход)\n");
 }
 
 static void step_ball(Ball *ball, const Paddle *l, const Paddle *r, int *scoreL, int *scoreR) {
@@ -107,14 +107,14 @@ static void step_ball(Ball *ball, const Paddle *l, const Paddle *r, int *scoreL,
         nextX = ball->x + ball->vx;
     }
 
-    // Гол слева (правый игрок забил)
+    // Гол слева
     if (nextX <= 0) {
         (*scoreR)++;
         reset_ball(ball);
         return;
     }
     
-    // Гол справа (левый игрок забил)
+    // Гол справа
     if (nextX >= WIDTH - 1) {
         (*scoreL)++;
         reset_ball(ball);
@@ -126,8 +126,8 @@ static void step_ball(Ball *ball, const Paddle *l, const Paddle *r, int *scoreL,
 }
 
 int main(void) {
-    Paddle left = {.y = HEIGHT / 2 - PADDLE_SIZE / 2};
-    Paddle right = {.y = HEIGHT / 2 - PADDLE_SIZE / 2};
+    Paddle left = {. y = HEIGHT / 2 - PADDLE_SIZE / 2};
+    Paddle right = {. y = HEIGHT / 2 - PADDLE_SIZE / 2};
     Ball ball;
     int scoreL = 0, scoreR = 0;
     reset_ball(&ball);
@@ -148,7 +148,7 @@ int main(void) {
             case 'Z': 
                 left.y++;
                 break;
-            case 'k':
+            case 'k': 
             case 'K': 
                 right.y--;
                 break;
@@ -156,10 +156,10 @@ int main(void) {
             case 'M': 
                 right.y++;
                 break;
-            case ' ':
+            case ' ': 
                 break;
-            default:
-                continue;  // игнорируем некорректный ввод
+            default: 
+                continue;
         }
         
         clamp_paddle(&left);
@@ -168,11 +168,11 @@ int main(void) {
         render(&left, &right, &ball, scoreL, scoreR);
 
         if (scoreL >= WIN_SCORE) {
-            printf("\x1b[36m\x1b[1m🎉 ЛЕВЫЙ ИГРОК ПОБЕДИЛ!  🎉\x1b[0m\n");
+            printf("\n\x1b[36m\x1b[1m🎉 ЛЕВЫЙ ИГРОК ПОБЕДИЛ!  🎉\x1b[0m\n");
             break;
         }
         if (scoreR >= WIN_SCORE) {
-            printf("\x1b[32m\x1b[1m🎉 ПРАВЫЙ ИГРОК ПОБЕДИЛ! 🎉\x1b[0m\n");
+            printf("\n\x1b[32m\x1b[1m🎉 ПРАВЫЙ ИГРОК ПОБЕДИЛ! 🎉\x1b[0m\n");
             break;
         }
     }
