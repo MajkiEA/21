@@ -1,203 +1,163 @@
+# перейти на базовую ветку и обновить
+git checkout develop-m
+git pull origin develop-m
+
+# создать свою ветку
+git checkout -b develop-virginwh
+
+# создать/обновить файл
+mkdir -p src
+nano src/pong.c   # вставь код, сохрани
+
+# собрать и протестировать
+gcc -Wall -Werror -Wextra src/pong.c -o pong
+./pong   # управление: A/Z левый, K/M правый, Space пропуск, Q выход
+
+# закоммитить и запушить
+git add src/pong.c
+git commit -m "Add turn-based Pong with bouncing ball"
+git push origin develop-virginwh
+
+
 #include <stdio.h>
-int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XCoordBall, int YCoordBall);
-void PrintLeftRocket(int width);
-void PrintRightRocket(int width);
-void  PrintWeb(int width);
-void PrintLeftBorderAndWeb(int width);
-void PrintRightBorder(int width);
-void LeftTopAngle() ;
-void RightTopAngle();
-void LeftBottomAngle() ;
-void RightBottomAngle();
-void RightBottomAngle();
-void HorizontalBorder(int width);
-void PrintRightBorderAfterRocket();
-void PrintBottomBorder();
-void PrintTopBorder();
 
+#define WIDTH 80
+#define HEIGHT 25
+#define PADDLE_SIZE 3
+#define LEFT_X 2
+#define RIGHT_X (WIDTH - 3)
+#define MAX_SCORE 21
 
+static void clamp_paddle(int *y) {
+    if (*y < 0) *y = 0;
+    if (*y > HEIGHT - PADDLE_SIZE) *y = HEIGHT - PADDLE_SIZE;
+}
 
-int main() {
-    int LeftY = 12, RightY = 12;
-    int Player = 0;  // Если  ход левого игрока если 1 ход правого
-    printf("\033[5m¤\033[0m \n");
-    printPole(80, 25, LeftY, RightY, 12, 23);
+static void reset_ball(int *x, int *y, int *dx, int *dy, int toward_right) {
+    *x = WIDTH / 2;
+    *y = HEIGHT / 2;
+    *dx = toward_right ? 1 : -1;
+    *dy = 0;
+}
 
-    char input;
-    while (1) {
-        input = getchar();
+static void draw_field(int left_y, int right_y, int ball_x, int ball_y, int score_l, int score_r) {
+    printf("Score L: %d | Score R: %d\n", score_l, score_r);
 
-        switch (input) {
-            case 'q':
-                printf("Игра закончена");
-                return 0;
-            case '\n':
+    putchar('+');
+    for (int i = 0; i < WIDTH; ++i) putchar('-');
+    puts("+");
+
+    for (int y = 0; y < HEIGHT; ++y) {
+        putchar('|');
+        for (int x = 0; x < WIDTH; ++x) {
+            char c = ' ';
+            if (x == ball_x && y == ball_y) {
+                c = 'O';
+            } else if (x == LEFT_X && y >= left_y && y < left_y + PADDLE_SIZE) {
+                c = '#';
+            } else if (x == RIGHT_X && y >= right_y && y < right_y + PADDLE_SIZE) {
+                c = '#';
+            } else if (x == WIDTH / 2) {
+                c = '|';  // центральная линия
+            }
+            putchar(c);
+        }
+        puts("|");
+    }
+
+    putchar('+');
+    for (int i = 0; i < WIDTH; ++i) putchar('-');
+    puts("+");
+}
+
+int main(void) {
+    int left_y = HEIGHT / 2 - PADDLE_SIZE / 2;
+    int right_y = HEIGHT / 2 - PADDLE_SIZE / 2;
+
+    int ball_x, ball_y, dx, dy;
+    reset_ball(&ball_x, &ball_y, &dx, &dy, 1);  // старт летит вправо
+
+    int score_l = 0, score_r = 0;
+    int player = 0;  // 0 — ход левого, 1 — правого
+
+    draw_field(left_y, right_y, ball_x, ball_y, score_l, score_r);
+
+    int ch;
+    while (score_l < MAX_SCORE && score_r < MAX_SCORE) {
+        ch = getchar();
+        if (ch == EOF) break;
+        if (ch == '\n') continue;
+
+        if (player == 0) {
+            if (ch == 'a' || ch == 'A') {
+                left_y -= 1;
+            } else if (ch == 'z' || ch == 'Z') {
+                left_y += 1;
+            } else if (ch == ' ') {
+                // пропуск хода
+            } else if (ch == 'q' || ch == 'Q') {
                 break;
-            default:
-                if (Player == 0) {
-                    switch (input) {
-                        case 'a':
-                            LeftY -= 1;
-                            Player = 1;
-                            break;
-                        case 'z':
-                            LeftY += 1;
-                            Player = 1;
-                            break;
-                        case 'k':
-                            printf("\033[1m !! Ход \x1b[36m левого\x1b[0m игрока !!\033[0m \n");
-                            break;
-                        case 'm':
-                            printf("\033[1m!! Ход \x1b[36m левого\x1b[0m игрока !!\033[0m \n");
-                            break;
-                        case ' ':
-                            Player = 1;
-                            break;
-                    }
-                } else {
-                    switch (input) {
-                        case 'a':
-                            printf("\033[1m !! Ход \x1b[32m правого\x1b[0m игрока !!\033[0m \n");
-                            break;
-                        case 'z':
-                            printf("\033[1m !! Ход \x1b[32m правого\x1b[0m игрока \033[1m !!\033[0m \n");
-                            break;
-                        case 'k':
-                            RightY -= 1;
-                            Player = 0;
-                            break;
-                        case 'm':
-                            RightY += 1;
-                            Player = 0;
-                            break;
-                        case ' ':
-                            Player = 0;
-                            break;
-                    }
-                }
-                printPole(80, 25, LeftY, RightY, 12, 23);
-        }
-    }
-
-    return 0;
-}
-
-/* Рисует прямаугольная область заданой шириной width, и высотой height*/
-int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XCoordBall, int YCoordBall) {
-    int MaxYRocket = 22;
-    if (YLeftRocket > MaxYRocket) {
-        YLeftRocket = MaxYRocket;
-    }
-    if (YRightRocket > MaxYRocket) {
-        YRightRocket = MaxYRocket;
-    }
-    
-    PrintTopBorder();
-    // рисуем вертикальную границу
-    for (int indexVerticalLine = 0; indexVerticalLine < height; ++indexVerticalLine) {
-        if (indexVerticalLine >= YLeftRocket && indexVerticalLine < YLeftRocket + 3) {
-            // рисуем левую рокетку
-            PrintLeftRocket(width);
-            // рисуем сетку   
-            PrintWeb(width); 
-            
+            }
         } else {
-            // рисуем левую границу и сетку
-            PrintLeftBorderAndWeb( width);
+            if (ch == 'k' || ch == 'K') {
+                right_y -= 1;
+            } else if (ch == 'm' || ch == 'M') {
+                right_y += 1;
+            } else if (ch == ' ') {
+                // пропуск хода
+            } else if (ch == 'q' || ch == 'Q') {
+                break;
+            }
         }
 
-        if (indexVerticalLine >= YRightRocket && indexVerticalLine < YRightRocket + 3) {
-            // рисуем правую рокетку
-            PrintRightRocket(width);         
-            //PrintRightBorder(width);
-            PrintRightBorderAfterRocket();
-        } else {
-            // рисуем правую границу и переходим на следующую строку
-             PrintRightBorder(width);            
+        clamp_paddle(&left_y);
+        clamp_paddle(&right_y);
+
+        // Шаг мяча
+        ball_x += dx;
+        ball_y += dy;
+
+        // Отскок от верх/низ
+        if (ball_y < 0) {
+            ball_y = 0;
+            dy = -dy;
+        } else if (ball_y >= HEIGHT) {
+            ball_y = HEIGHT - 1;
+            dy = -dy;
         }
+
+        // Левая сторона
+        if (ball_x <= LEFT_X) {
+            if (ball_y >= left_y && ball_y < left_y + PADDLE_SIZE) {
+                ball_x = LEFT_X;
+                dx = -dx;
+            } else if (ball_x < 0) {
+                score_r++;
+                reset_ball(&ball_x, &ball_y, &dx, &dy, 1);  // летит к проигравшему (левый пропустил)
+            }
+        }
+
+        // Правая сторона
+        if (ball_x >= RIGHT_X) {
+            if (ball_y >= right_y && ball_y < right_y + PADDLE_SIZE) {
+                ball_x = RIGHT_X;
+                dx = -dx;
+            } else if (ball_x > WIDTH - 1) {
+                score_l++;
+                reset_ball(&ball_x, &ball_y, &dx, &dy, 0);  // летит к проигравшему (правый пропустил)
+            }
+        }
+
+        draw_field(left_y, right_y, ball_x, ball_y, score_l, score_r);
+        player = 1 - player;  // смена хода
     }
 
-    PrintBottomBorder();
-    
+    if (score_l >= MAX_SCORE) {
+        printf("Left player wins!\n");
+    } else if (score_r >= MAX_SCORE) {
+        printf("Right player wins!\n");
+    } else {
+        printf("Game aborted.\n");
+    }
     return 0;
-}
-
-
-void PrintTopBorder() {
-//рисуем угол
-    LeftTopAngle();
-    //Горизонтальная линия
-    HorizontalBorder(width);  
-    //рисуем угол
-    RightTopAngle();  
-    return;
-}
-void PrintBottomBorder() {
-//рисуем угол
-    LeftTopAngle();
-    //Горизонтальная линия
-    HorizontalBorder(width);  
-    //рисуем угол
-    RightTopAngle();  
-    return;
-}
-
-void PrintWeb(int width) {
-    printf("%*s%s", width / 2 - 4, "░", "");
-    return;
-}       
-            
-
-void PrintLeftBorderAndWeb(int width) {
-    printf("\x1b[35m|\x1b[0m%*s%s", width / 2, "░", "");
-    return;
-}
-
-void PrintRightBorder(int width){ 
-    printf("%*s\x1b[35m|\x1b[0m\n", width / 2, "");
-    return;
-}
-
-void PrintLeftRocket(int width) {
-    printf("\x1b[35m|\x1b[0m\x1b[36m%*s%s\x1b[0m", width - 74, "▓", "");
-   
-    //printf("%*s%s", width - 74, "▓", "");
-   
-    return;
-}
-void PrintRightRocket(int width) {
-    printf("\x1b[32m%*s%s\x1b[0m", width / 2, "▓", "");
-    return;
-}
-
-void PrintRightBorderAfterRocket() {
-      printf("%*s\x1b[35m|\x1b[0m\n", 2, "");
-}
-
-void LeftTopAngle() {
-    printf("\x1b[35m┌");
-    return;
-}
-
-void RightTopAngle(){
-    printf("┐\x1b[0m\n");
-    return;
-}
-
-void LeftBottomAngle() {
-     printf("\x1b[35m└");
-    return;
-}
-
-void RightBottomAngle(){
-    printf("┘\x1b[0m\n");
-    return;
-}
-void HorizontalBorder(int width) {
-    for (int i = 0; i < width - 2; ++i) {  
-        // рисуем горизонтальную линию длиной равно ширине поля -2, потому
-        // что левый и правый угол рисуются отдельно
-        printf("─");
-    }
-    return;
 }
