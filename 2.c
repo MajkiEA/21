@@ -1,245 +1,228 @@
 #include <stdio.h>
+int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XBall, int YBall, int Score);
+void PrintLeftRocket();
+void PrintRightRocket();
+void PrintWeb();
+void PrintLeftBorderAndWeb(int width);
+void PrintRightBorder(int width);
+void LeftTopAngle() ;
+void RightTopAngle();
+void LeftBottomAngle() ;
+void RightBottomAngle();
+void RightBottomAngle();
+void HorizontalBorder(int width);
+void PrintRightBorderAfterRocket();
+void PrintBottomBorder();
+void PrintTopBorder();
+void PrintBall();
+void PrintVerticalBorder();
 
-#define WIDTH 80
-#define HEIGHT 25
-#define PADDLE_SIZE 3
-#define LEFT_X 2
-#define RIGHT_X 77
-#define WIN_SCORE 21
+int main() {
+    int LeftY = 12, RightY = 12, XBall = 2, YBall=13;
 
-void clamp(int *value, int min_val, int max_val) {
-    if (*value < min_val) {
-        *value = min_val;
+    int Player = 0, Score = 0;  // Если  ход левого игрока если 1 ход правого
+    
+    printPole(80, 25, LeftY, RightY, XBall, YBall, Score);
+
+    char input;
+    while (1) {
+        input = getchar();
+
+        switch (input) {
+            case 'q':
+                printf("Игра закончена");
+                return 0;
+            case '\n':
+                break;
+            default:
+                if (Player == 0) {
+                    switch (input) {
+                        case 'a':
+                            LeftY -= 1;
+                            Player = 1;
+                            break;
+                        case 'z':
+                            LeftY += 1;
+                            Player = 1;
+                            break;
+                        case 'k':
+                            printf("\033[1m !! Ход \x1b[36m левого\x1b[0m игрока !!\033[0m \n");
+                            break;
+                        case 'm':
+                            printf("\033[1m!! Ход \x1b[36m левого\x1b[0m игрока !!\033[0m \n");
+                            break;
+                        case ' ':
+                            Player = 1;
+                            break;
+                    }
+                } else {
+                    switch (input) {
+                        case 'a':
+                            printf("\033[1m !! Ход \x1b[32m правого\x1b[0m игрока !!\033[0m \n");
+                            break;
+                        case 'z':
+                            printf("\033[1m !! Ход \x1b[32m правого\x1b[0m игрока \033[1m !!\033[0m \n");
+                            break;
+                        case 'k':
+                            RightY -= 1;
+                            Player = 0;
+                            break;
+                        case 'm':
+                            RightY += 1;
+                            Player = 0;
+                            break;
+                        case ' ':
+                            Player = 0;
+                            break;
+                    }
+                }             
+                printf("\033[2J\033[H");    
+                
+                // Координат для отрисовки мяча XBall, YBall
+                
+                printPole(80, 25, LeftY, RightY, XBall, YBall, Score);
+        }
     }
-    if (*value > max_val) {
-        *value = max_val;
-    }
+    return 0;
 }
 
-void clear_screen(void) {
-    int i;
-    for (i = 0; i < 50; i = i + 1) {
-        printf("\n");
+/* Рисует прямаугольная область заданой шириной width, и высотой height*/
+int printPole(int width, int height, int YLeftRocket, int YRightRocket, int XBall, int YBall, int Score) {
+   //int XBall = 2;
+   //int YBall = 13;
+    int MaxYRocket = 22;
+    int MinYRocket = 0;      
+    
+    if (YLeftRocket > MaxYRocket) {
+        YLeftRocket = MaxYRocket;
     }
-}
+    if (YRightRocket > MaxYRocket) {
+        YRightRocket = MaxYRocket;
+    }
+    if (YLeftRocket < MinYRocket) {
+        YLeftRocket = MinYRocket;
+    }
+    if (YRightRocket < MinYRocket) {
+        YRightRocket = MinYRocket;
+    }
+    
 
-void draw_top_border(void) {
-    int x;
-    printf("\x1b[35m");
-    printf("%c", 226);
-    printf("%c", 148);
-    printf("%c", 140);
-    for (x = 1; x < WIDTH - 1; x = x + 1) {
-        printf("%c", 226);
-        printf("%c", 148);
-        printf("%c", 128);
-    }
-    printf("%c", 226);
-    printf("%c", 148);
-    printf("%c", 144);
-    printf("\x1b[0m\n");
-}
+    // Вывод счета
 
-void draw_bottom_border(void) {
-    int x;
-    printf("\x1b[35m");
-    printf("%c", 226);
-    printf("%c", 148);
-    printf("%c", 148);
-    for (x = 1; x < WIDTH - 1; x = x + 1) {
-        printf("%c", 226);
-        printf("%c", 148);
-        printf("%c", 128);
-    }
-    printf("%c", 226);
-    printf("%c", 148);
-    printf("%c", 152);
-    printf("\x1b[0m\n");
-}
+    PrintTopBorder(width);
+    // рисуем вертикальную границу
 
-void draw_score_line(int score_l, int score_r) {
-    int i, spaces_before, spaces_after, score_width;
-    
-    printf("\x1b[35m");
-    printf("%c", 226);
-    printf("%c", 148);
-    printf("%c", 130);
-    printf("\x1b[0m");
-    
-    score_width = 7;
-    spaces_before = (WIDTH - 2 - score_width) / 2;
-    spaces_after = WIDTH - 2 - score_width - spaces_before;
-    
-    for (i = 0; i < spaces_before; i = i + 1) {
-        printf(" ");
-    }
-    
-    printf("\x1b[34m%d\x1b[0m", score_l);
-    printf(" :  ");
-    printf("\x1b[31m%d\x1b[0m", score_r);
-    
-    for (i = 0; i < spaces_after; i = i + 1) {
-        printf(" ");
-    }
-    
-    printf("\x1b[35m");
-    printf("%c", 226);
-    printf("%c", 148);
-    printf("%c", 130);
-    printf("\x1b[0m\n");
-}
 
-void draw_field(int left_y, int right_y, int ball_x, int ball_y, int score_l, int score_r) {
-    int x, y;
-    
-    clear_screen();
-    
-    draw_top_border();
-    draw_score_line(score_l, score_r);
-    
-    for (y = 1; y < HEIGHT; y = y + 1) {
-        printf("\x1b[35m");
-        printf("%c", 226);
-        printf("%c", 148);
-        printf("%c", 130);
-        printf("\x1b[0m");
-        
-        for (x = 1; x < WIDTH - 1; x = x + 1) {
-            if (x == WIDTH / 2) {
-                printf("%c", 226);
-                printf("%c", 150);
-                printf("%c", 145);
-            } else if (x == LEFT_X && y >= left_y && y < left_y + PADDLE_SIZE) {
-                printf("\x1b[34m");
-                printf("%c", 226);
-                printf("%c", 150);
-                printf("%c", 147);
-                printf("\x1b[0m");
-            } else if (x == RIGHT_X && y >= right_y && y < right_y + PADDLE_SIZE) {
-                printf("\x1b[31m");
-                printf("%c", 226);
-                printf("%c", 150);
-                printf("%c", 147);
-                printf("\x1b[0m");
-            } else if (x == ball_x && y == ball_y) {
-                printf("\x1b[33m");
-                printf("%c", 226);
-                printf("%c", 151);
-                printf("%c", 143);
-                printf("\x1b[0m");
-            } else {
-                printf(" ");
+    for (int y= 1; y < height; ++y) {
+        PrintVerticalBorder();
+
+        for (int x =  0; x < width-1;++x) {
+            if (x == width / 2) {
+               PrintWeb() ;
+                continue;
             }
-        }
-        
-        printf("\x1b[35m");
-        printf("%c", 226);
-        printf("%c", 148);
-        printf("%c", 130);
-        printf("\x1b[0m\n");
-    }
-    
-    draw_bottom_border();
-    
-    printf("Controls:  \x1b[34mA/Z\x1b[0m (left up/down) | \x1b[31mK/M\x1b[0m (right up/down) | Space (skip) | Q (quit)\n");
-}
+            if (x == 2 && y >= YLeftRocket && y < YLeftRocket + 3 ){
+                PrintLeftRocket();
+                continue;
+            }
+             if (x == width-3 && y >= YRightRocket && y < YRightRocket + 3 ){
+                PrintRightRocket(width);
+                continue;
+            }
 
-int main(void) {
-    int left_y, right_y, ball_x, ball_y, ball_vx, ball_vy;
-    int score_l, score_r;
-    int ch, done, next_x, next_y;
-    
-    left_y = HEIGHT / 2 - PADDLE_SIZE / 2;
-    right_y = HEIGHT / 2 - PADDLE_SIZE / 2;
-    ball_x = WIDTH / 2;
-    ball_y = HEIGHT / 2;
-    ball_vx = 1;
-    ball_vy = 1;
-    score_l = 0;
-    score_r = 0;
-    done = 0;
-    
-    draw_field(left_y, right_y, ball_x, ball_y, score_l, score_r);
-    
-    while (done == 0) {
-        ch = getchar();
-        
-        if (ch == 10) {
-            continue;
+            if (x == XBall && y == YBall) {
+                PrintBall();
+                continue;
+            }
+            printf(" ");
         }
-        
-        if (ch == 113 || ch == 81) {
-            break;
-        }
-        
-        if (ch == 97 || ch == 65) {
-            left_y = left_y - 1;
-        } else if (ch == 122 || ch == 90) {
-            left_y = left_y + 1;
-        } else if (ch == 107 || ch == 75) {
-            right_y = right_y - 1;
-        } else if (ch == 109 || ch == 77) {
-            right_y = right_y + 1;
-        } else if (ch == 32) {
-            /* skip */
-        } else {
-            continue;
-        }
-        
-        while (getchar() != 10) {
-            /* skip rest */
-        }
-        
-        clamp(&left_y, 1, HEIGHT - PADDLE_SIZE - 1);
-        clamp(&right_y, 1, HEIGHT - PADDLE_SIZE - 1);
-        
-        next_x = ball_x + ball_vx;
-        next_y = ball_y + ball_vy;
-        
-        if (next_y <= 1 || next_y >= HEIGHT - 1) {
-            ball_vy = -ball_vy;
-            next_y = ball_y + ball_vy;
-        }
-        
-        if (next_x == LEFT_X && next_y >= left_y && next_y < left_y + PADDLE_SIZE) {
-            ball_vx = -ball_vx;
-            next_x = ball_x + ball_vx;
-        }
-        
-        if (next_x == RIGHT_X && next_y >= right_y && next_y < right_y + PADDLE_SIZE) {
-            ball_vx = -ball_vx;
-            next_x = ball_x + ball_vx;
-        }
-        
-        if (next_x <= 0) {
-            score_r = score_r + 1;
-            ball_x = WIDTH / 2;
-            ball_y = HEIGHT / 2;
-            ball_vx = 1;
-            ball_vy = 1;
-        } else if (next_x >= WIDTH - 1) {
-            score_l = score_l + 1;
-            ball_x = WIDTH / 2;
-            ball_y = HEIGHT / 2;
-            ball_vx = 1;
-            ball_vy = 1;
-        } else {
-            ball_x = next_x;
-            ball_y = next_y;
-        }
-        
-        draw_field(left_y, right_y, ball_x, ball_y, score_l, score_r);
-        
-        if (score_l >= WIN_SCORE) {
-            printf("\n\x1b[34m\x1b[1mLeft player wins!\x1b[0m\n");
-            done = 1;
-        }
-        
-        if (score_r >= WIN_SCORE) {
-            printf("\n\x1b[31m\x1b[1mRight player wins!\x1b[0m\n");
-            done = 1;
-        }
+
+         PrintVerticalBorder();
+         printf("\n");
     }
+
+
+
+    PrintBottomBorder(width);
     
     return 0;
 }
+
+
+
+void PrintLeftRocket() {
+    printf("\x1b[34m▓\x1b[0m");
+   
+    return;
+}
+void PrintRightRocket() {
+    printf("\x1b[31m▓\x1b[0m");
+    return;
+}
+
+
+void PrintBall(){
+    printf("\x1b[33m●\x1b[0m");
+    return;
+}
+
+void PrintTopBorder(int width) {
+    //рисуем угол
+    LeftTopAngle();
+    //Горизонтальная линия
+    HorizontalBorder(width);  
+    //рисуем угол
+    RightTopAngle();  
+    return;
+}
+void PrintBottomBorder(int width) {
+//рисуем угол
+    LeftBottomAngle();
+    //Горизонтальная линия
+    HorizontalBorder(width);  
+    //рисуем угол
+    RightBottomAngle();  
+    return;
+}
+
+void PrintWeb() {
+     printf("░");
+    return;
+}       
+    
+
+void PrintVerticalBorder(){
+    printf("\x1b[35m│\x1b[0m");
+    return;
+}
+
+
+void LeftTopAngle() {
+    printf("\x1b[35m┌");
+    return;
+}
+
+void RightTopAngle(){
+    printf("┐\x1b[0m\n");
+    return;
+}
+
+void LeftBottomAngle() {
+     printf("\x1b[35m└");
+    return;
+}
+
+void RightBottomAngle(){
+    printf("┘\x1b[0m\n");
+    return;
+}
+void HorizontalBorder(int width) {
+    for (int i = 0; i < width - 1; ++i) {  
+        // рисуем горизонтальную линию длиной равно ширине поля -2, потому
+        // что левый и правый угол рисуются отдельно
+        printf("─");
+    }
+    return;
+}
+
+почему не запускает этот код и исправь где тут я написал, что в мейн раассчёт координаты мячика и сделай вывод счёта сверху границы
