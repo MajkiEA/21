@@ -25,7 +25,7 @@ int main() {
             12;  // координаты платформ дпо вертикали Y = 12 для обеих платформа чтобы отобразить по середине
     int XBall = 3, YBall = 13;  // координаты мячика , мячк у левого игрока
     int speedX = 1, speedY = 1;  // скорость перемещения мячика 2 символа за ход
-    int Player = 0;  // флаг хода:   0 Если  ход левого игрока,  1 ход правого игрока
+    int Player = 0;  // флаг хода:    0 Если  ход левого игрока,  1 ход правого игрока
     int GoalLeft = 0, GoalRight = 0;  // количество голов для левого и правого игрока
     int ScreenX = 80, ScreenY = 25;  // размер игровой площадки
     int XLeftRocket = 2, XRightRocket = ScreenX - 3;
@@ -33,7 +33,7 @@ int main() {
     PrintScore(ScreenX, GoalLeft, GoalRight);
     PrintPole(ScreenX, ScreenY, YLeftRocket, XLeftRocket, YRightRocket, XRightRocket, XBall, YBall, GoalLeft,
               GoalRight);  // функция рисует игровое поле в начальном сотоянии
-    printf("    \033[1m!!  Ход \x1b[36m синего \x1b[0m игрока !!\033[0m \n");
+    printf("    \033[1m!!   Ход \x1b[36m синего \x1b[0m игрока !!\033[0m \n");
 
     char input;
     while (1) {             // Запускаем бесконечный цикл,
@@ -58,7 +58,7 @@ int main() {
 
         } else if (XBall >= ScreenX - 1) {
             GoalRight++;  // добавляем очко правой игроку
-            printf("%*s%sГол \x1b[32m красному \x1b[0m  игроку\n ", ScreenX / 2 - 17, " ",
+            printf("%*s%sГол \x1b[31m красному \x1b[0m  игроку\n ", ScreenX / 2 - 17, " ",
                    " ");                 // Сообщение Гол
             YLeftRocket = 12;            // положение сверху левой рокетки
             YRightRocket = 12;           // положение сверху правой рокетки
@@ -75,12 +75,12 @@ int main() {
 
         // проверка на счёт
         if (GoalLeft == 21) {
-            printf("     Синий игрок попедил со счётом \x1b[34m%d\x1b[0m :  \x1b[31m%d\x1b[0m\n", GoalLeft,
+            printf("     Синий игрок попедил со счётом \x1b[34m%d\x1b[0m :   \x1b[31m%d\x1b[0m\n", GoalLeft,
                    GoalRight);
             return 0;
         }
         if (GoalRight == 21) {
-            printf("     Красный игрок попедил со счётом \x1b[34m%d\x1b[0m : \x1b[31m%d\x1b[0m\n", GoalLeft,
+            printf("     Красный игрок попедил со счётом \x1b[34m%d\x1b[0m :  \x1b[31m%d\x1b[0m\n", GoalLeft,
                    GoalRight);
             return 0;
         }
@@ -110,11 +110,11 @@ int main() {
                             }
                             Player = 1;  // передаём ход  другому игроку
                             break;
-                        case 'k': 
-                            printf("\033[1m !! Ход \x1b[36m синего\x1b[0m игрока !!\033[0m \n");
+                        case 'k':  
+                            printf("\033[1m !!  Ход \x1b[34m синего\x1b[0m игрока !!\033[0m \n");
                             break;
                         case 'm':
-                            printf("\033[1m!!  Ход \x1b[36m синего\x1b[0m игрока !!\033[0m \n");
+                            printf("\033[1m!!   Ход \x1b[34m синего\x1b[0m игрока !!\033[0m \n");
                             break;
                         case ' ':        // если пробел
                             Player = 1;  // передаём ход  другому игроку
@@ -122,13 +122,13 @@ int main() {
                     }
                 } else {
                     switch (input) {  // ещё раз проверяем какой символ введён
-                        case 'a': 
-                            printf("\033[1m !! Ход \x1b[32m красного\x1b[0m игрока !!\033[0m \n");
+                        case 'a':  
+                            printf("\033[1m !! Ход \x1b[31m красного\x1b[0m игрока !!\033[0m \n");
                             break;
-                        case 'z': 
-                            printf("\033[1m !! Ход \x1b[32m красного\x1b[0m игрока \033[1m !!\033[0m \n");
+                        case 'z':  
+                            printf("\033[1m !! Ход \x1b[31m красного\x1b[0m игрока \033[1m ! !\033[0m \n");
                             break;
-                        case 'k':  // движение правой рокетки вверх
+                        case 'k':   // движение правой рокетки вверх
                             YRightRocket -= 1;
                             if (YRightRocket <= 0) {
                                 YRightRocket = 1;
@@ -211,7 +211,7 @@ int main() {
                           YBall, GoalLeft, GoalRight);
                 // Выводим подсказку какой игрок ходит
                 if (Player == 0) {
-                    printf("    \033[1m!! Ход \x1b[36m синего \x1b[0m игрока !!\033[0m \n");
+                    printf("    \033[1m!!  Ход \x1b[34m синего \x1b[0m игрока !!\033[0m \n");
                 } else {
                     printf("%*s%s \033[1m !! Ход \x1b[31m красного \x1b[0m игрока \033[1m !!\033[0m \n",
                            ScreenX / 2, " ", " ");
@@ -270,28 +270,29 @@ int PrintPole(int width, int height, int YLeftRocket, int XLeftRocket, int YRigh
     return 0;
 }
 
-// === НАЧАЛО:  Функция вывода счёта большими цифрами ===
+// === НАЧАЛО ИЗМЕНЕНИЙ:  Функция вывода счёта большими цифрами ===
 void PrintScore(int ScreenX, int GoalLeft, int GoalRight) {
     // Выводим счёт в виде больших ASCII-цифр (5 строк высотой)
     printf("\n");  // Отступ сверху
     
     // Выводим 5 строк больших цифр
     for (int line = 0; line < 5; line++) {
-        printf("%*s", ScreenX / 2 - 10, " ");  // Центрируем счёт
+        // ИЗМЕНЕНО: Центрирование по середине экрана (относительно двоеточия)
+        printf("%*s", ScreenX / 2 - 8, " ");  
         
-        // Левая цифра (синий игрок)
-        printf("\x1b[36m");  // Синий цвет
+        // ИЗМЕНЕНО: Левая цифра (синий игрок) - изменён цвет с \x1b[36m на \x1b[34m
+        printf("\x1b[34m");  // Синий цвет (было 36 - голубой, стало 34 - синий)
         PrintBigDigit(GoalLeft, line);
         printf("\x1b[0m");  // Сброс цвета
         
         // Разделитель ":"
         if (line == 2) {
-            printf("  :   ");
+            printf("  :  ");
         } else {
             printf("     ");
         }
         
-        // Правая цифра (красный игрок)
+        // Правая цифра (красный игрок) - цвет остался \x1b[31m (красный)
         printf("\x1b[31m");  // Красный цвет
         PrintBigDigit(GoalRight, line);
         printf("\x1b[0m");  // Сброс цвета
@@ -302,7 +303,7 @@ void PrintScore(int ScreenX, int GoalLeft, int GoalRight) {
     printf("\n");  // Отступ снизу
 }
 
-// Функция рисования одной строки большой цифры
+// ИЗМЕНЕНО: Функция рисования одной строки большой цифры - все цифры теперь пишутся как левая (без сдвига)
 void PrintBigDigit(int digit, int line) {
     // Массив ASCII-арт для цифр 0-9 (5 строк высотой, 5 символов шириной)
     const char *digits[10][5] = {
@@ -328,18 +329,15 @@ void PrintBigDigit(int digit, int line) {
         {" ███ ", "█   █", " ████", "    █", " ███ "}
     };
     
-    // Если цифра больше 9, рисуем двузначное число
+    // ИЗМЕНЕНО: Теперь все цифры выводятся одинаково (без разделения на десятки/единицы)
+    // Если цифра больше 9, выводим как однозначное (берём остаток от деления на 10)
     if (digit > 9) {
-        int tens = digit / 10;   // Десятки
-        int ones = digit % 10;   // Единицы
-        printf("%s ", digits[tens][line]);   // Выводим десятки
-        printf("%s", digits[ones][line]);    // Выводим единицы
-    } else {
-        // Однозначное число
-        printf("%s", digits[digit][line]);
+        digit = digit % 10;  // Берём последнюю цифру
     }
+    
+    printf("%s", digits[digit][line]);
 }
-// === КОНЕЦ: Функция вывода счёта большими цифрами ===
+// === КОНЕЦ ИЗМЕНЕНИЙ ===
 
 void PrintLeftRocket() {
     printf("\x1b[34m▓\x1b[0m");
