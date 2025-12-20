@@ -1,5 +1,3 @@
-virginwh@kr-h3:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git pull origin develop
-remote: Enumerating objects: 19, done.
 remote: Counting objects: 100% (19/19), done.
 remote: Compressing objects: 100% (13/13), done.
 remote: Total 19 (delta 10), reused 8 (delta 6), pack-reused 0 (from 0)
@@ -23,4 +21,11 @@ fatal: Need to specify how to reconcile divergent branches.
 virginwh@kr-h3:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git status
 On branch develop
 nothing to commit, working tree clean
+virginwh@kr-h3:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git config pull.rebase false
+virginwh@kr-h3:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ git pull origin develop
+From ssh://git-ssh.21-school.ru:2222/students_repo/shinoher/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1
+ * branch            develop    -> FETCH_HEAD
+Auto-merging src/pong.c
+CONFLICT (content): Merge conflict in src/pong.c
+Automatic merge failed; fix conflicts and then commit the result.
 virginwh@kr-h3:~/D05P01.ID_1577484-Team_TL_shinoher.17f8fbf6_a34c_4a3f-1$ 
