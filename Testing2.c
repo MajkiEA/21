@@ -1,54 +1,29 @@
-Quest 3. Data metrics
-> Готово
-
-AI Data Analyzer v0.01
-Initialising...
-Loading...
-1. Load module #1... Success!     
-2. Load module #2... Success!
-3. Load decision decision-making module 
-3.1. Load maxmin module... Success!
-3.2. Load data i/o & squaring module... Success!
-3.2. Load stat module
-
-ERROR 
-«Сколько ж можно», — проскальзывает в твоей голове.
-
-> Снова посмотреть папку src репозитория
-
-В папке находится модуль stat. Он практически пустой. Судя по всему, он предназначен для расчета статистических метрик по массиву данных.
-
-> Открыть учебник по математической статистике
-
-Твой любезный сумасшедший друг его, к сожалению, не оставил. Придется гадать и разбираться так.
-
-Получен Quest 3. Добавить реализации необходимых функций в программу src/stat.c таким образом, чтобы программа собиралась и корректно работала (принимала через stdin массив целых чисел, выводила бы его, вычисляла и выводила на новой строке набор статистических метрик — экстремумы (max и min), математическое ожидание и дисперсию, считая, что мы имеем дело с дискретным равномерным распределением). В случае некорректного ввода необходимо выводить «n/a». Уменьшать декомпозицию нельзя — функции можно только добавлять при необходимости, но не убирать. Придерживаться предложенной структуры программы. Числа с плавающей запятой выводить с точностью 6 знаков после запятой.
-Входные данные	Выходные данные
-4
-1 2 3 4	1 2 3 4
-4 1 2.500000 1.250000
-
-Вот изначальный код:
 #include <stdio.h>
-#define NMAX 10
+#define NMAX 10  // максимальный размер массива
 
+// Прототипы функций: ввод, вывод, метрики и вывод метрик
 int input(int *a, int *n);
 void output(int *a, int n);
 int max(int *a, int n);
 int min(int *a, int n);
 double mean(int *a, int n);
 double variance(int *a, int n);
+void output_result(int max_v, int min_v, double mean_v, double variance_v);
 
-void output_result(int max_v,
-                   int min_v,
-                   double mean_v,
-                   double variance_v);
+int main() {
+    int n = 0;          // фактический размер массива
+    int data[NMAX];     // буфер под данные (до 10 целых)
 
-int main()
-{
-    int n, data[NMAX];
-    input(data, n);
+    // Читаем размер и массив; при любой ошибке ввода печатаем n/a и выходим
+    if (!input(data, &n)) {
+        printf("n/a");
+        return 0;
+    }
+
+    // Выводим исходный массив
     output(data, n);
+
+    // Считаем метрики и выводим их одной строкой: max min mean variance
     output_result(max(data, n),
                   min(data, n),
                   mean(data, n),
@@ -57,4 +32,64 @@ int main()
     return 0;
 }
 
+// Ввод: читаем n, проверяем 0 < n <= NMAX, затем читаем n целых
+// Возвращает 1 при успехе, 0 при любой ошибке (нехватка данных, неверный формат, плохой n)
+int input(int *a, int *n) {
+    if (scanf("%d", n) != 1) return 0;
+    if (*n <= 0 || *n > NMAX) return 0;
 
+    for (int i = 0; i < *n; i++) {
+        if (scanf("%d", &a[i]) != 1) return 0;
+    }
+    return 1;
+}
+
+// Вывод массива целых через пробел, затем перевод строки
+void output(int *a, int n) {
+    for (int i = 0; i < n; i++) {
+        if (i) printf(" ");
+        printf("%d", a[i]);
+    }
+    printf("\n");
+}
+
+// Максимум массива
+int max(int *a, int n) {
+    int m = a[0];
+    for (int i = 1; i < n; i++) {
+        if (a[i] > m) m = a[i];
+    }
+    return m;
+}
+
+// Минимум массива
+int min(int *a, int n) {
+    int m = a[0];
+    for (int i = 1; i < n; i++) {
+        if (a[i] < m) m = a[i];
+    }
+    return m;
+}
+
+// Математическое ожидание: сумма / n
+double mean(int *a, int n) {
+    double s = 0.0;
+    for (int i = 0; i < n; i++) s += a[i];
+    return s / n;
+}
+
+// Дисперсия для равномерного дискретного распределения: E[(x - mu)^2] = (1/n) * sum (x_i - mu)^2
+double variance(int *a, int n) {
+    double mu = mean(a, n);
+    double s = 0.0;
+    for (int i = 0; i < n; i++) {
+        double d = a[i] - mu;
+        s += d * d;
+    }
+    return s / n;
+}
+
+// Вывод метрик: max min mean variance с точностью 6 знаков после запятой для вещественных
+void output_result(int max_v, int min_v, double mean_v, double variance_v) {
+    printf("%d %d %.6f %.6f\n", max_v, min_v, mean_v, variance_v);
+}
