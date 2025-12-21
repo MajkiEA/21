@@ -1,63 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
+Quest 2. Data I/O
+> Готово
 
-static int read_size(int *n);
-static int read_array(int n, int **arr);
-static void square_array(int n, int *arr);
-static void print_array(int n, int *arr);
+AI Data Analyzer v0.01
+Initialising...
+Loading...
+1. Load module #1... Success!     
+2. Load module #2... Success!
+3. Load decision decision-making module 
+3.1. Load maxmin module... Success!
+3.2. Load data i/o & squaring module
 
-int main(void) {
-    int n = 0;
-    int *arr = NULL;
+Segmentation fault
+> Вечер перестает быть томным...
 
-    if (!read_size(&n)) {
-        printf("n/a");
-        return 0;
-    }
-    if (!read_array(n, &arr)) {
-        printf("n/a");
-        return 0;
-    }
+Сейчас день. Наверное...
 
-    square_array(n, arr);
-    print_array(n, arr);
+> Посмотреть папку src репозитория
 
-    free(arr);
-    return 0;
-}
+В папке еще находится модуль squaring.
 
-static int read_size(int *n) {
-    if (!n) return 0;
-    if (scanf("%d", n) != 1) return 0;
-    if (*n <= 0) return 0;
-    return 1;
-}
+> Запустить модуль squaring отдельно
 
-static int read_array(int n, int **arr) {
-    if (n <= 0 || !arr) return 0;
-    *arr = (int *)malloc(sizeof(int) * n);
-    if (!*arr) return 0;
-    for (int i = 0; i < n; i++) {
-        if (scanf("%d", &((*arr)[i])) != 1) {
-            free(*arr);
-            *arr = NULL;
-            return 0;
-        }
-    }
-    return 1;
-}
+Segmentation fault
+И тут требуется починка. Да что ж такое?
 
-static void square_array(int n, int *arr) {
-    for (int i = 0; i < n; i++) {
-        long long v = arr[i];
-        arr[i] = (int)(v * v);  // при переполнении стандартного int поведение зависит от реализации
-    }
-}
-
-static void print_array(int n, int *arr) {
-    for (int i = 0; i < n; i++) {
-        if (i) printf(" ");
-        printf("%d", arr[i]);
-    }
-    printf("\n");
-}
+Получен Quest 2. Внести исправления в программу src/squaring.c таким образом, чтобы программа собиралась и корректно работала (принимала через stdin массив целых чисел, возводила их в квадрат и выводила в stdout). В случае некорректного ввода необходимо выводить «n/a». Уменьшать декомпозицию нельзя — функции можно только добавлять при необходимости, но не убирать.
+Входные данные	Выходные данные
+3
+1 2 3	1 4 9
