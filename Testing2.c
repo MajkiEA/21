@@ -77,7 +77,7 @@ double mean(int *a, int n) {
     for (int i = 0; i < n; i++) s += a[i];
     return s / n;
 }
-
+й
 // Дисперсия для равномерного дискретного распределения: E[(x - mu)^2] = (1/n) * sum (x_i - mu)^2
 double variance(int *a, int n) {
     double mu = mean(a, n);
