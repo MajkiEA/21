@@ -1,66 +1,37 @@
 #include <stdio.h>
-#include <stdlib.h>
+#define NMAX 10
 
-int read_size(int *n) {
-    // Читаем одно целое число — размер массива.
-    if (scanf("%d", n) != 1) return 0;
-    if (*n <= 0) return 0;  // размер должен быть положительным
-    return 1;
-}
+int input(int *a, int *n);
+void output(int *a, int n);
+void squaring(int *a, int n);
 
-int read_array(int n, int *arr) {
-    // Читаем n целых чисел в массив.
-    for (int i = 0; i < n; i++) {
-        if (scanf("%d", &arr[i]) != 1) return 0;
-    }
-    return 1;
-}
+int main()
+{
+    int n, data[NMAX];
+    input(data, n);
+    squaring(data, n);
+    output(data, n);
 
-void square_array(int n, int *arr) {
-    // Возводим каждый элемент в квадрат.
-    for (int i = 0; i < n; i++) {
-        arr[i] = arr[i] * arr[i];
-    }
-}
-
-void print_array(int n, int *arr) {
-    // Печатаем элементы через пробел и перевод строки в конце.
-    for (int i = 0; i < n; i++) {
-        if (i) printf(" ");
-        printf("%d", arr[i]);
-    }
-    printf("\n");
-}
-
-int main(void) {
-    int n = 0;
-    // 1. Читаем размер.
-    if (!read_size(&n)) {
-        printf("n/a");
-        return 0;
-    }
-
-    // 2. Выделяем память под массив.
-    int *arr = (int *)malloc(n * sizeof(int));
-    if (!arr) {
-        printf("n/a");
-        return 0;
-    }
-
-    // 3. Читаем числа.
-    if (!read_array(n, arr)) {
-        printf("n/a");
-        free(arr);
-        return 0;
-    }
-
-    // 4. Обрабатываем (квадратим).
-    square_array(n, arr);
-
-    // 5. Выводим результат.
-    print_array(n, arr);
-
-    // 6. Освобождаем память.
-    free(arr);
     return 0;
-}1
+}
+
+int input(int *a, int *n)
+{
+    scanf("%d", n);
+    for(int *p = a; p - a < *n; p++)
+    {
+        scanf("%d", p);
+    }
+}
+
+void output(int *a, int n)
+{
+    //NOTHING
+}
+
+void squaring(int *a, int n)
+{
+    //NOTHING
+}
+
+
