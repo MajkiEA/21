@@ -1,26 +1,30 @@
-#include <stdio.h>
+Quest 2. Data I/O
+> Готово
 
-int main(void) {
-    int a, b, c;
+AI Data Analyzer v0.01
+Initialising...
+Loading...
+1. Load module #1... Success!     
+2. Load module #2... Success!
+3. Load decision decision-making module 
+3.1. Load maxmin module... Success!
+3.2. Load data i/o & squaring module
 
-    // Читаем три целых; при неуспехе — "n/a"
-    if (scanf("%d %d %d", &a, &b, &c) != 3) {
-        printf("n/a");
-        return 0;
-    }
+Segmentation fault
+> Вечер перестает быть томным...
 
-    // Вычисляем максимум и минимум
-    int max = a;
-    int min = a;
+Сейчас день. Наверное...
 
-    if (b > max) max = b;
-    if (b < min) min = b;
+> Посмотреть папку src репозитория
 
-    if (c > max) max = c;
-    if (c < min) min = c;
+В папке еще находится модуль squaring.
 
-    // Вывод: "max min"
-    printf("%d %d\n", max, min);
+> Запустить модуль squaring отдельно
 
-    return 0;
-}
+Segmentation fault
+И тут требуется починка. Да что ж такое?
+
+Получен Quest 2. Внести исправления в программу src/squaring.c таким образом, чтобы программа собиралась и корректно работала (принимала через stdin массив целых чисел, возводила их в квадрат и выводила в stdout). В случае некорректного ввода необходимо выводить «n/a». Уменьшать декомпозицию нельзя — функции можно только добавлять при необходимости, но не убирать.
+Входные данные	Выходные данные
+3
+1 2 3	1 4 9
