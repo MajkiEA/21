@@ -3,13 +3,13 @@
 int main(void) {
     int a, b, c;
 
-    // Пытаемся прочитать три целых числа из stdin
+    // Читаем три целых; при неуспехе — "n/a"
     if (scanf("%d %d %d", &a, &b, &c) != 3) {
         printf("n/a");
         return 0;
     }
 
-    // Вычисляем максимум и минимум из трех чисел
+    // Вычисляем максимум и минимум
     int max = a;
     int min = a;
 
@@ -19,7 +19,7 @@ int main(void) {
     if (c > max) max = c;
     if (c < min) min = c;
 
-    // Выводим результат в формате: max min
+    // Вывод: "max min"
     printf("%d %d\n", max, min);
 
     return 0;
