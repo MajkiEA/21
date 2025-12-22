@@ -32,8 +32,6 @@ chmod +x test.sh          # Один раз дать права на выпол�
 
 
 
-
-
 //типа адун
 # 1. Компиляция
 gcc -Wall -Wextra -Werror -std=c11 maxmin.c -o maxmin
