@@ -1,59 +1,97 @@
-Новое задание по такой же схеме.
-Quest 4. Search
-> Готово
-
-AI Data Analyzer v0.01
-Initialising...
-Loading...
-1. Load module #1... Success!     
-2. Load module #2... Success!
-3. Load decision decision-making module 
-3.1. Load maxmin module... Success!
-3.2. Load data i/o & squaring module... Success!
-3.2. Load stat module... Success!
-3.4. Load searching module
-
-NOT FOUND 
-> Посмотреть папку src репозитория еще раз
-
-Есть модуль search. Но он тебе не понравится.
-
-> Посмотреть модуль search
-
-Только комментарии. Кода нет. Чтобы двигаться дальше, видимо, нужно реализовать его. Интересно, хоть что-то в этой комнате будет проходить легко?
-
-Получен Quest 4. Реализовать программу src/search.c в соответствии с комментарием. Программа должна принимать через stdin массив целых чисел и находить в нем первое вхождение числа, удовлетворяющего следующим требованиям: быть четным, быть большим или равным математическому ожиданию, подчиняться правилу трех сигм и не равняться 0. Найденное число должно быть выведено в stdout. Если такого числа нет, то программа должна выдавать 0. Максимальное количество введенных чисел равно 30. В случае некорректного ввода необходимо выводить «n/a». При разработке необходимо придерживаться идей декомпозиции из предыдущих квестов, приветствуется переиспользование уже разработанных функций. Функции должны быть компактными, простыми и занимать не более 20–30 строк кода.
-Входные данные	Выходные данные
-4
-1 2 3 4	4
-
-Прошлый код:
+#include <math.h>
 #include <stdio.h>
-#define NMAX 10
+#define NMAX 30
 
 int input(int *a, int *n);
-void output(int *a, int n);
-int max(int *a, int n);
-int min(int *a, int n);
-double mean(int *a, int n);
-double variance(int *a, int n);
+double mean(const int *a, int n);
+double variance(const int *a, int n);
+int search(const int *a, int n);
 
-void output_result(int max_v,
-                   int min_v,
-                   double mean_v,
-                   double variance_v);
-
-int main()
-{
+int main() {
     int n, data[NMAX];
-    input(data, n);
-    output(data, n);
-    output_result(max(data, n),
-                  min(data, n),
-                  mean(data, n),
-                  variance(data, n));
+
+    // Читаем данные.  Если ошибка — выводим "n/a" и выходим
+    if (input(data, &n) != 0) {
+        printf("n/a");
+        return 0;
+    }
+
+    // Ищем число по условию и выводим результат
+    printf("%d", search(data, n));
 
     return 0;
 }
 
+// Читаем количество чисел и сами числа
+int input(int *a, int *n) {
+    // Читаем сколько чисел будет (от 1 до 30)
+    if (scanf("%d", n) != 1 || *n <= 0 || *n > NMAX) {
+        return 1;  // ошибка
+    }
 
+    // Читаем сами числа по одному
+    for (int i = 0; i < *n; i++) {
+        if (scanf("%d", &a[i]) != 1) {
+            return 1;  // ошибка
+        }
+    }
+
+    return 0;  // всё ок
+}
+
+// Считаем среднее арифметическое (математическое ожидание)
+double mean(const int *a, int n) {
+    double sum = 0.0;  // сумма всех чисел
+
+    // Складываем все числа
+    for (int i = 0; i < n; i++) {
+        sum += a[i];
+    }
+
+    // Делим сумму на количество чисел = среднее
+    return sum / n;
+}
+
+// Считаем дисперсию
+double variance(const int *a, int n) {
+    double mean_value = mean(a, n);  // сначала находим среднее
+    double sum = 0.0;                // сумма квадратов отклонений
+
+    // Для каждого числа считаем (число - среднее)² и складываем
+    for (int i = 0; i < n; i++) {
+        double diff = a[i] - mean_value;  // отклонение от среднего
+        sum += diff * diff;               // квадрат отклонения
+    }
+
+    // Дисперсия = сумма квадратов отклонений / количество чисел
+    return sum / n;
+}
+
+// Ищем первое число, которое подходит под все условия
+int search(const int *a, int n) {
+    double mean_value = mean(a, n);           // считаем среднее
+    double var = variance(a, n);              // считаем дисперсию
+    double std_dev = sqrt(var);               // стандартное отклонение (сигма) = √дисперсия
+    double lower_bound = mean_value - 3 * std_dev;  // нижняя граница (среднее - 3σ)
+    double upper_bound = mean_value + 3 * std_dev;  // верхняя граница (среднее + 3σ)
+
+    // Проходим по массиву и ищем первое подходящее число
+    for (int i = 0; i < n; i++) {
+        int num = a[i];
+
+        // Проверяем все 4 условия: 
+        // 1. Число чётное (остаток от деления на 2 равен 0)
+        // 2. Число >= среднего
+        // 3. Число в пределах 3 сигм (от lower_bound до upper_bound)
+        // 4. Число не равно 0
+        if (num % 2 == 0 &&                      // чётное
+            num >= mean_value &&                 // >= среднего
+            num >= lower_bound &&                // >= нижней границы
+            num <= upper_bound &&                // <= верхней границы
+            num != 0) {                          // не ноль
+            return num;  // нашли — возвращаем его
+        }
+    }
+
+    return 0;  // ничего не нашли — возвращаем 0
+}
