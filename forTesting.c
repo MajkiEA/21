@@ -46,7 +46,7 @@ clang-format -n maxmin.c
 clang-format -i maxmin.c
 
 # 5. Статический анализ
-cppcheck --enable=all --suppress=missingIncludeSystem maxmin. c
+cppcheck --enable=all --suppress=missingIncludeSystem maxmin.c
 
 # 6. Проверка утечек памяти
 valgrind --tool=memcheck --leak-check=yes ./maxmin
