@@ -1,175 +1,228 @@
-/*------------------------------------
-	Здравствуй, человек!  
-	Чтобы получить ключ, 
-	поработай с комментариями. 
--------------------------------------*/
-
 #include <stdio. h>
 
-// Объявляем все функции, которые будем использовать
-void input(int *buffer, int *length);
-void output(const int *buffer, int length);
-int sum_numbers(const int *buffer, int length);
-int find_numbers(const int* buffer, int length, int number, int* numbers);
+#define LEN 100
 
-/*------------------------------------
-	Главная функция программы
-	
-	Что делает: 
-	1. Считывает массив чисел
-	2. Находит сумму всех ЧЕТНЫХ чисел (кроме нуля)
-	3. Находит все числа, на которые эта сумма делится нацело
-	4. Выводит сумму и новый массив
-	
-	Если четных чисел нет или делителей нет - выводит "n/a"
--------------------------------------*/
+void sum(int *buff1, int len1, int *buff2, int len2, int *result, int *result_length);
+void sub(int *buff1, int len1, int *buff2, int len2, int *result, int *result_length);
+int input(int *buffer, int *length);
+void output(const int *buffer, int length);
+int compare(const int *buff1, int len1, const int *buff2, int len2);
+int validate_digits(const int *buffer, int length);
+
+/*
+    Беззнаковая целочисленная длинная арифметика
+*/
 int main()
 {
-    int length;          // Сколько чисел в массиве
-    int buffer[10];      // Сам массив (максимум 10 чисел)
-    int numbers[10];     // Массив для результата (делители)
-    int sum = 0;         // Сумма четных чисел
-    int count = 0;       // Сколько делителей нашли
-    int error = 0;       // Флаг ошибки:  0 - всё хорошо, 1 - есть ошибка
+    int buff1[LEN];
+    int buff2[LEN];
+    int result[LEN + 1];
+    int len1 = 0;
+    int len2 = 0;
+    int result_len = 0;
+    int error = 0;
     
-    // Шаг 1: Считываем данные от пользователя
-    input(buffer, &length);
-    
-    // Шаг 2: Считаем сумму четных элементов
-    sum = sum_numbers(buffer, length);
-    
-    // Шаг 3: Проверяем, есть ли четные числа
-    // Если сумма = 0, значит четных не было
-    if (sum == 0) {
-        error = 1;  // Устанавливаем флаг ошибки
+    // Считываем данные
+    error = input(buff1, &len1);
+    if (error == 0) {
+        error = input(buff2, &len2);
     }
     
-    // Шаг 4: Если ошибки нет, ищем делители
+    // Проверяем длины
     if (error == 0) {
-        count = find_numbers(buffer, length, sum, numbers);
-        
-        // Проверяем, нашли ли мы делители
-        if (count == 0) {
-            error = 1;  // Устанавливаем флаг ошибки
+        if (len1 <= 0 || len2 <= 0 || len1 > LEN || len2 > LEN) {
+            error = 1;
         }
     }
     
-    // Шаг 5: Выводим результат
-    if (error == 1) {
-        printf("n/a");  // Если была ошибка - выводим "n/a"
+    // Проверяем цифры
+    if (error == 0) {
+        error = validate_digits(buff1, len1);
+    }
+    if (error == 0) {
+        error = validate_digits(buff2, len2);
+    }
+    
+    // Если есть ошибка - выводим n/a и выходим
+    if (error != 0) {
+        printf("n/a");
     } else {
-        // Если всё хорошо - выводим сумму и массив делителей
-        printf("%d\n", sum);
-        output(numbers, count);
+        // Сложение
+        sum(buff1, len1, buff2, len2, result, &result_len);
+        output(result, result_len);
+        printf("\n");
+        
+        // Вычитание
+        sub(buff1, len1, buff2, len2, result, &result_len);
+        
+        if (result_len < 0) {
+            printf("n/a");
+        } else {
+            output(result, result_len);
+        }
     }
     
-    return 0;  // Единственный выход из функции
+    return 0;
 }
 
-/*------------------------------------
-	Функция ввода данных
-	
-	Что делает:
-	Читает сначала количество чисел,
-	потом сами числа через пробел
-	
-	Например:
-	Вход:  5
-	      1 2 3 4 5
-	Результат: buffer = [1,2,3,4,5], length = 5
--------------------------------------*/
-void input(int *buffer, int *length)
+/*
+    Функция ввода числа
+    Возвращает:  0 - успех, 1 - ошибка
+*/
+int input(int *buffer, int *length)
 {
-    // Читаем, сколько чисел будет
-    scanf("%d", length);
+    *length = 0;
+    char c = ' ';
+    int reading = 1;
     
-    // Читаем все числа по одному
-    for (int i = 0; i < *length; i++) {
-        scanf("%d", &buffer[i]);
+    while (reading != 0 && *length < LEN) {
+        if (scanf("%d%c", &buffer[*length], &c) != 2) {
+            reading = 0;
+            *length = -1;
+        } else {
+            (*length)++;
+            if (c == '\n') {
+                reading = 0;
+            }
+        }
     }
+    
+    return (*length <= 0) ? 1 : 0;
 }
 
-/*------------------------------------
-	Функция вывода массива
-	
-	Что делает:
-	Выводит все числа массива через пробел
-	
-	Например:
-	buffer = [1,2,3] → выведет "1 2 3"
--------------------------------------*/
+/*
+    Проверка цифр в диапазоне 0-9
+    Возвращает: 0 - OK, 1 - ошибка
+*/
+int validate_digits(const int *buffer, int length)
+{
+    int error = 0;
+    int i = 0;
+    
+    while (i < length && error == 0) {
+        if (buffer[i] < 0 || buffer[i] > 9) {
+            error = 1;
+        }
+        i++;
+    }
+    
+    return error;
+}
+
+/*
+    Функция вывода числа
+*/
 void output(const int *buffer, int length)
 {
-    // Проходим по всем числам
     for (int i = 0; i < length; i++) {
-        printf("%d", buffer[i]);  // Выводим число
-        
-        // После каждого числа ставим пробел (кроме последнего)
+        printf("%d", buffer[i]);
         if (i < length - 1) {
             printf(" ");
         }
     }
 }
 
-/*------------------------------------
-	Функция подсчета суммы четных чисел
-	
-	Что делает: 
-	Проходит по массиву и суммирует все ЧЕТНЫЕ числа
-	(0 считается нечетным по условию задачи)
-	
-	Например:
-	[4, 3, 9, 0, 1, 2, 0, 2, 7, -1]
-	Четные: 4, 2, 2
-	Сумма: 4 + 2 + 2 = 8
--------------------------------------*/
-int sum_numbers(const int *buffer, int length)
+/*
+    Сравнение двух чисел
+    Возвращает: 1 (>), 0 (==), -1 (<)
+*/
+int compare(const int *buff1, int len1, const int *buff2, int len2)
 {
-    int sum = 0;  // Начальная сумма = 0
+    int result = 0;
     
-    // Проходим по всем числам массива
-    for (int i = 0; i < length; i++)
-    {
-        // Проверяем: 
-        // 1. Число не ноль (ноль считаем нечетным)
-        // 2. Число делится на 2 без остатка (значит четное)
-        if (buffer[i] != 0 && buffer[i] % 2 == 0)
-        {
-            sum = sum + buffer[i];  // Добавляем к сумме
+    if (len1 > len2) {
+        result = 1;
+    } else if (len1 < len2) {
+        result = -1;
+    } else {
+        int i = 0;
+        while (i < len1 && result == 0) {
+            if (buff1[i] > buff2[i]) {
+                result = 1;
+            } else if (buff1[i] < buff2[i]) {
+                result = -1;
+            }
+            i++;
         }
     }
     
-    return sum;  // Возвращаем результат
+    return result;
 }
 
-/*------------------------------------
-	Функция поиска делителей
-	
-	Что делает:
-	Находит все числа из массива, на которые
-	заданное число делится нацело (без остатка)
-	
-	Например:
-	Массив: [4, 1, 2, 2, -1]
-	Число:  8
-	Делители: 4 (8/4=2), 1 (8/1=8), 2 (8/2=4), 2, -1 (8/-1=-8)
-	Результат: записывает [4, 1, 2, 2, -1] в numbers
-	Возвращает:  5 (количество найденных делителей)
--------------------------------------*/
-int find_numbers(const int* buffer, int length, int number, int* numbers)
+/*
+    Функция сложения
+*/
+void sum(int *buff1, int len1, int *buff2, int len2, int *result, int *result_length)
 {
-    int count = 0;  // Счетчик найденных делителей
+    int carry = 0;
+    int i1 = len1 - 1;
+    int i2 = len2 - 1;
+    int pos = 0;
+    int temp[LEN + 1];
+    int continue_loop = 1;
     
-    // Проходим по всем элементам массива
-    for (int i = 0; i < length; i++) {
-        // Проверяем:
-        // 1. Элемент не ноль (на ноль делить нельзя)
-        // 2. Число делится на этот элемент нацело (остаток = 0)
-        if (buffer[i] != 0 && number % buffer[i] == 0) {
-            numbers[count] = buffer[i];  // Записываем делитель
-            count++;  // Увеличиваем счетчик
+    while (continue_loop != 0) {
+        int digit1 = (i1 >= 0) ? buff1[i1] : 0;
+        int digit2 = (i2 >= 0) ? buff2[i2] : 0;
+        int sum_digits = digit1 + digit2 + carry;
+        
+        temp[pos] = sum_digits % 10;
+        carry = sum_digits / 10;
+        
+        pos++;
+        i1--;
+        i2--;
+        
+        if (i1 < 0 && i2 < 0 && carry == 0) {
+            continue_loop = 0;
         }
     }
     
-    return count;  // Возвращаем, сколько делителей нашли
+    *result_length = pos;
+    for (int i = 0; i < pos; i++) {
+        result[i] = temp[pos - 1 - i];
+    }
+}
+
+/*
+    Функция вычитания
+*/
+void sub(int *buff1, int len1, int *buff2, int len2, int *result, int *result_length)
+{
+    if (compare(buff1, len1, buff2, len2) < 0) {
+        *result_length = -1;
+    } else {
+        int borrow = 0;
+        int i1 = len1 - 1;
+        int i2 = len2 - 1;
+        int pos = 0;
+        int temp[LEN];
+        
+        while (i1 >= 0) {
+            int digit1 = buff1[i1];
+            int digit2 = (i2 >= 0) ? buff2[i2] : 0;
+            int diff = digit1 - digit2 - borrow;
+            
+            if (diff < 0) {
+                diff += 10;
+                borrow = 1;
+            } else {
+                borrow = 0;
+            }
+            
+            temp[pos] = diff;
+            pos++;
+            i1--;
+            i2--;
+        }
+        
+        while (pos > 1 && temp[pos - 1] == 0) {
+            pos--;
+        }
+        
+        *result_length = pos;
+        for (int i = 0; i < pos; i++) {
+            result[i] = temp[pos - 1 - i];
+        }
+    }
 }
