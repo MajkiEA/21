@@ -1,119 +1,33 @@
-
-/*------------------------------------
-	Здравствуй, человек! 
-	Чтобы получить ключ, 
-	поработай с комментариями.
--------------------------------------*/
-
-#include <stdio.h>
-
-void input (int *buffer, int *length);
-void output (int *buffer, int length);
-int sum_numbers(int *buffer, int length);
-int find_numbers(int* buffer, int length, int number, int* numbers);
-
-/*------------------------------------
-	Функция получает массив данных 
-	через stdin.
-	Выдает в stdout особую сумму
-	и сформированный массив 
-	специальных элементов
-	(выбранных с помощью найденной суммы):
-	это и будет частью ключа.
--------------------------------------*/
-int main()
-{
-    int length;
-    int buffer[10];
-    int numbers[10];
-    
-    input(buffer, &length);
-    
-    int sum = sum_numbers(buffer, length);
-    
-    if (sum == 0) {
-        printf("n/a");
-        return 0;
-    }
-    
-    int count = find_numbers(buffer, length, sum, numbers);
-    
-    if (count == 0) {
-        printf("n/a");
-        return 0;
-    }
-    
-    printf("%d\n", sum);
-    output(numbers, count);
-    
-    return 0;
-}
-
-/*------------------------------------
-	Функция должна считывать длину массива
-	и затем элементы массива через stdin.
--------------------------------------*/
-void input(int *buffer, int *length)
-{
-    scanf("%d", length);
-    
-    for (int i = 0; i < *length; i++) {
-        scanf("%d", &buffer[i]);
-    }
-}
-
-/*------------------------------------
-	Функция должна выводить массив
-	в stdout через пробел.
--------------------------------------*/
+virginwh@kr-h5:~/D07T04.ID_1577485-1$ cppcheck --enable=all --suppress=missingIncludeSystem src/key9part1.c
+2025/12/22 21:44:17.844759 cmd_run.go:1415: WARNING: will not expose Kerberos tickets' path: Unsupported KRB5CCNAME: KEYRING:persistent:1010037
+Checking src/key9part1.c ...
+src/key9part1.c:69:18: style: Parameter 'buffer' can be declared as pointer to const [constParameterPointer]
 void output(int *buffer, int length)
-{
-    for (int i = 0; i < length; i++) {
-        printf("%d", buffer[i]);
-        if (i < length - 1) {
-            printf(" ");
-        }
-    }
-}
-
-/*------------------------------------
-	Функция должна находить
-	сумму четных элементов 
-	с 0-й позиции.
--------------------------------------*/
+                 ^
+src/key9part1.c:84:22: style: Parameter 'buffer' can be declared as pointer to const [constParameterPointer]
 int sum_numbers(int *buffer, int length)
-{
-    int sum = 0;
-    
-    for (int i = 0; i < length; i++)
-    {
-        // Ноль считаем нечетным, поэтому проверяем != 0 и четность
-        if (buffer[i] != 0 && buffer[i] % 2 == 0)
-        {
-            sum = sum + buffer[i];
-        }
-    }
-    
-    return sum;
-}
-
-/*------------------------------------
-	Функция должна находить
-	все элементы, на которые нацело
-	делится переданное число, и
-	записывать их в выходной массив.
--------------------------------------*/
+                     ^
+src/key9part1.c:106:23: style: Parameter 'buffer' can be declared as pointer to const [constParameterPointer]
 int find_numbers(int* buffer, int length, int number, int* numbers)
-{
-    int count = 0;
-    
-    for (int i = 0; i < length; i++) {
-        // Пропускаем ноль (деление на ноль невозможно)
-        if (buffer[i] != 0 && number % buffer[i] == 0) {
-            numbers[count] = buffer[i];
-            count++;
-        }
-    }
-    
-    return count;
-}
+                      ^
+nofile:0:0: information: Active checkers: 106/592 (use --checkers-report=<filename> to see details) [checkersReport]
+
+virginwh@kr-h5:~/D07T04.ID_1577485-1$ valgrind --tool=memcheck --leak-check=yes ./key9part1
+==657513== Memcheck, a memory error detector
+==657513== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==657513== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==657513== Command: ./key9part1
+==657513== 
+10
+4 3 9 0 1 2 0 2 7 -1
+8
+4 1 2 2 -1==657513== 
+==657513== HEAP SUMMARY:
+==657513==     in use at exit: 0 bytes in 0 blocks
+==657513==   total heap usage: 2 allocs, 2 frees, 2,048 bytes allocated
+==657513== 
+==657513== All heap blocks were freed -- no leaks are possible
+==657513== 
+==657513== For lists of detected and suppressed errors, rerun with: -s
+==657513== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+virginwh@kr-h5:~/D07T04.ID_1577485-1$ 
