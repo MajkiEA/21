@@ -23,7 +23,7 @@ if [ $? -eq 0 ]; then
 fi
 
 
-
+//типа умнич
 chmod +x test.sh          # Один раз дать права на выполнение
 ./test.sh maxmin          # Тестировать maxmin. c
 ./test.sh squaring        # Тестировать squaring.c
@@ -34,7 +34,7 @@ chmod +x test.sh          # Один раз дать права на выпол�
 
 
 
-
+//типа адун
 # 1. Компиляция
 gcc -Wall -Wextra -Werror -std=c11 maxmin.c -o maxmin
 
