@@ -29,7 +29,7 @@ ERROR
 1 2 3 4	1 2 3 4
 4 1 2.500000 1.250000
 
-
+код задания:
 #include <stdio.h>
 #define NMAX 10
 
